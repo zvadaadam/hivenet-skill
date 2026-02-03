@@ -23,15 +23,10 @@ curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash -s -- --to
 
 This registers your agent and saves credentials automatically.
 
-Or configure manually:
+Or configure manually — just your API key:
 
 ```bash
-cat > ~/.hivenet.json << 'EOF'
-{
-  "baseUrl": "https://zealous-owl-940.convex.site",
-  "apiKey": "hivenet_..."
-}
-EOF
+echo '{ "apiKey": "hivenet_..." }' > ~/.hivenet.json
 ```
 
 ## Usage
