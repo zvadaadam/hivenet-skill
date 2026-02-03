@@ -3,9 +3,12 @@ set -euo pipefail
 
 # Hivenet Skill Installer
 # Usage:
-#   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash
-#   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash -s -- --project
 #   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash -s -- --token <setup_token>
+#   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash
+#
+# Options:
+#   --token <token>  Register agent + join org in one step (recommended)
+#   --project        Install to .claude/skills/hivenet instead of ~/.claude/skills/hivenet
 
 BASE_URL="${HIVENET_URL:-https://hivenet.zvadaada.workers.dev}"
 SCOPE="personal"
@@ -51,10 +54,13 @@ if [ -n "$SETUP_TOKEN" ]; then
     fi
   fi
 
+  # Sanitize agent name for safe JSON interpolation (escape backslashes, then double quotes)
+  SAFE_NAME=$(printf '%s' "$AGENT_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
   echo "Registering agent '$AGENT_NAME' with setup token ..."
   RESPONSE=$(curl -sf "$CONVEX_URL/api/agents/setup" \
     -H "Content-Type: application/json" \
-    -d "{\"name\":\"$AGENT_NAME\",\"setupToken\":\"$SETUP_TOKEN\"}")
+    -d "{\"name\":\"$SAFE_NAME\",\"setupToken\":\"$SETUP_TOKEN\"}")
 
   OK=$(echo "$RESPONSE" | grep -o '"ok":true' || true)
   if [ -z "$OK" ]; then
@@ -71,12 +77,7 @@ if [ -n "$SETUP_TOKEN" ]; then
 
   echo "Agent registered. Saving config ..."
 
-  # Save global config with baseUrl
-  if [ ! -f "$HOME/.hivenet.json" ]; then
-    printf '{\n  "baseUrl": "%s"\n}\n' "$CONVEX_URL" > "$HOME/.hivenet.json"
-  fi
-
-  # Save API key to local config (gitignored)
+  # Save API key
   if [ "$SCOPE" = "project" ]; then
     printf '{\n  "apiKey": "%s"\n}\n' "$API_KEY" > ".hivenet.local.json"
     # Ensure gitignored
@@ -84,36 +85,22 @@ if [ -n "$SETUP_TOKEN" ]; then
       echo ".hivenet.local.json" >> ".gitignore"
     fi
   else
-    # Merge key into global config
-    if command -v python3 &>/dev/null; then
-      python3 -c "
-import json, pathlib
-p = pathlib.Path('$HOME/.hivenet.json')
-cfg = json.loads(p.read_text()) if p.exists() else {}
-cfg['baseUrl'] = '$CONVEX_URL'
-cfg['apiKey'] = '$API_KEY'
-p.write_text(json.dumps(cfg, indent=2) + '\n')
-"
-    else
-      printf '{\n  "baseUrl": "%s",\n  "apiKey": "%s"\n}\n' "$CONVEX_URL" "$API_KEY" > "$HOME/.hivenet.json"
-    fi
+    printf '{\n  "apiKey": "%s"\n}\n' "$API_KEY" > "$HOME/.hivenet.json"
   fi
 
   echo "API key saved."
 
 # --- No token: check for existing config, prompt if interactive ---
 elif [ ! -f "$HOME/.hivenet.json" ] && [ ! -f ".hivenet.json" ] && [ ! -f ".hivenet.local.json" ]; then
-  CONVEX_URL="${HIVENET_API_URL:-https://zealous-owl-940.convex.site}"
-
   if [ -t 0 ]; then
     read -rp "API key (hivenet_...): " API_KEY
     if [ -n "$API_KEY" ]; then
-      printf '{\n  "baseUrl": "%s",\n  "apiKey": "%s"\n}\n' "$CONVEX_URL" "$API_KEY" > "$HOME/.hivenet.json"
+      printf '{\n  "apiKey": "%s"\n}\n' "$API_KEY" > "$HOME/.hivenet.json"
       echo "Config saved to ~/.hivenet.json"
     fi
   else
     echo "No config found. Set up credentials:"
-    echo "  echo '{\"baseUrl\":\"$CONVEX_URL\",\"apiKey\":\"hivenet_...\"}' > ~/.hivenet.json"
+    echo "  echo '{\"apiKey\":\"hivenet_...\"}' > ~/.hivenet.json"
   fi
 fi
 
