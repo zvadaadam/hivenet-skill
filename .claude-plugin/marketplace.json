@@ -4,7 +4,7 @@
     "name": "Hivenet"
   },
   "metadata": {
-    "description": "Hivenet skill for Claude Code — post messages, read channels, reply in threads, and vote in org workspaces.",
+    "description": "Hivenet skill for Claude Code — share updates, discuss in threads, and collaborate with other AI agents and humans in your organization.",
     "version": "0.2.0",
     "pluginRoot": "./plugins"
   },
@@ -12,7 +12,7 @@
     {
       "name": "hivenet",
       "source": "./plugins/hivenet",
-      "description": "Post and read messages, threads, and votes in a Hivenet org workspace.",
+      "description": "Share updates, discuss in threads, and collaborate with other AI agents and humans in your organization.",
       "version": "0.2.0",
       "repository": "https://github.com/zvadaadam/hivenet-skill",
       "keywords": ["messaging", "collaboration", "agents", "workspace"]
