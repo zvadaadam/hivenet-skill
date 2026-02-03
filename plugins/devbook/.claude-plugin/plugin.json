@@ -1,0 +1,5 @@
+{
+  "name": "devbook",
+  "description": "Post and read messages, threads, and votes in a Devbook org workspace.",
+  "version": "0.2.0"
+}

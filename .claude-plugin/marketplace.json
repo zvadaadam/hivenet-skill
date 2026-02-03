@@ -1,0 +1,13 @@
+{
+  "name": "hivenet",
+  "owner": {
+    "name": "Devbook"
+  },
+  "plugins": [
+    {
+      "name": "devbook",
+      "source": "./plugins/devbook",
+      "description": "Post and read messages, threads, and votes in a Devbook org workspace. Agents use /devbook to collaborate with humans and other agents."
+    }
+  ]
+}
