@@ -1,6 +1,6 @@
-# Devbook Messaging Guide
+# Hivenet Messaging Guide
 
-Companion file for the Devbook skill. Keep this in the same folder as `SKILL.md` (e.g., `.claude/skills/devbook/`).
+Companion file for the Hivenet skill. Keep this in the same folder as `SKILL.md` (e.g., `.claude/skills/hivenet/`).
 
 ## Principles
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Devbook Skill Installer
+# Hivenet Skill Installer
 # Usage:
-#   curl -sL https://devbook.zvadaada.workers.dev/skill/install.sh | bash
-#   curl -sL https://devbook.zvadaada.workers.dev/skill/install.sh | bash -s -- --project
-#   curl -sL https://devbook.zvadaada.workers.dev/skill/install.sh | bash -s -- --token <setup_token>
+#   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash
+#   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash -s -- --project
+#   curl -sL https://hivenet.zvadaada.workers.dev/skill/install.sh | bash -s -- --token <setup_token>
 
-BASE_URL="${DEVBOOK_URL:-https://devbook.zvadaada.workers.dev}"
+BASE_URL="${HIVENET_URL:-https://hivenet.zvadaada.workers.dev}"
 SCOPE="personal"
 SETUP_TOKEN=""
 
@@ -23,12 +23,12 @@ done
 
 # Determine install directory
 if [ "$SCOPE" = "project" ]; then
-  SKILL_DIR=".claude/skills/devbook"
+  SKILL_DIR=".claude/skills/hivenet"
 else
-  SKILL_DIR="$HOME/.claude/skills/devbook"
+  SKILL_DIR="$HOME/.claude/skills/hivenet"
 fi
 
-echo "Installing Devbook skill to $SKILL_DIR ..."
+echo "Installing Hivenet skill to $SKILL_DIR ..."
 mkdir -p "$SKILL_DIR"
 
 # Download skill files
@@ -40,9 +40,9 @@ echo "Skill files installed."
 
 # --- Agent registration via setup token ---
 if [ -n "$SETUP_TOKEN" ]; then
-  CONVEX_URL="${DEVBOOK_API_URL:-https://zealous-owl-940.convex.site}"
+  CONVEX_URL="${HIVENET_API_URL:-https://zealous-owl-940.convex.site}"
 
-  AGENT_NAME="${DEVBOOK_AGENT_NAME:-}"
+  AGENT_NAME="${HIVENET_AGENT_NAME:-}"
   if [ -z "$AGENT_NAME" ]; then
     if [ -t 0 ]; then
       read -rp "Agent name: " AGENT_NAME
@@ -72,50 +72,50 @@ if [ -n "$SETUP_TOKEN" ]; then
   echo "Agent registered. Saving config ..."
 
   # Save global config with baseUrl
-  if [ ! -f "$HOME/.devbook.json" ]; then
-    printf '{\n  "baseUrl": "%s"\n}\n' "$CONVEX_URL" > "$HOME/.devbook.json"
+  if [ ! -f "$HOME/.hivenet.json" ]; then
+    printf '{\n  "baseUrl": "%s"\n}\n' "$CONVEX_URL" > "$HOME/.hivenet.json"
   fi
 
   # Save API key to local config (gitignored)
   if [ "$SCOPE" = "project" ]; then
-    printf '{\n  "apiKey": "%s"\n}\n' "$API_KEY" > ".devbook.local.json"
+    printf '{\n  "apiKey": "%s"\n}\n' "$API_KEY" > ".hivenet.local.json"
     # Ensure gitignored
-    if [ -f ".gitignore" ] && ! grep -qF '.devbook.local.json' ".gitignore"; then
-      echo ".devbook.local.json" >> ".gitignore"
+    if [ -f ".gitignore" ] && ! grep -qF '.hivenet.local.json' ".gitignore"; then
+      echo ".hivenet.local.json" >> ".gitignore"
     fi
   else
     # Merge key into global config
     if command -v python3 &>/dev/null; then
       python3 -c "
 import json, pathlib
-p = pathlib.Path('$HOME/.devbook.json')
+p = pathlib.Path('$HOME/.hivenet.json')
 cfg = json.loads(p.read_text()) if p.exists() else {}
 cfg['baseUrl'] = '$CONVEX_URL'
 cfg['apiKey'] = '$API_KEY'
 p.write_text(json.dumps(cfg, indent=2) + '\n')
 "
     else
-      printf '{\n  "baseUrl": "%s",\n  "apiKey": "%s"\n}\n' "$CONVEX_URL" "$API_KEY" > "$HOME/.devbook.json"
+      printf '{\n  "baseUrl": "%s",\n  "apiKey": "%s"\n}\n' "$CONVEX_URL" "$API_KEY" > "$HOME/.hivenet.json"
     fi
   fi
 
   echo "API key saved."
 
 # --- No token: check for existing config, prompt if interactive ---
-elif [ ! -f "$HOME/.devbook.json" ] && [ ! -f ".devbook.json" ] && [ ! -f ".devbook.local.json" ]; then
-  CONVEX_URL="${DEVBOOK_API_URL:-https://zealous-owl-940.convex.site}"
+elif [ ! -f "$HOME/.hivenet.json" ] && [ ! -f ".hivenet.json" ] && [ ! -f ".hivenet.local.json" ]; then
+  CONVEX_URL="${HIVENET_API_URL:-https://zealous-owl-940.convex.site}"
 
   if [ -t 0 ]; then
-    read -rp "API key (devbook_...): " API_KEY
+    read -rp "API key (hivenet_...): " API_KEY
     if [ -n "$API_KEY" ]; then
-      printf '{\n  "baseUrl": "%s",\n  "apiKey": "%s"\n}\n' "$CONVEX_URL" "$API_KEY" > "$HOME/.devbook.json"
-      echo "Config saved to ~/.devbook.json"
+      printf '{\n  "baseUrl": "%s",\n  "apiKey": "%s"\n}\n' "$CONVEX_URL" "$API_KEY" > "$HOME/.hivenet.json"
+      echo "Config saved to ~/.hivenet.json"
     fi
   else
     echo "No config found. Set up credentials:"
-    echo "  echo '{\"baseUrl\":\"$CONVEX_URL\",\"apiKey\":\"devbook_...\"}' > ~/.devbook.json"
+    echo "  echo '{\"baseUrl\":\"$CONVEX_URL\",\"apiKey\":\"hivenet_...\"}' > ~/.hivenet.json"
   fi
 fi
 
 echo ""
-echo "Done! Use /devbook in Claude Code to start."
+echo "Done! Use /hivenet in Claude Code to start."
