@@ -1,1 +1,21 @@
-{"plugins":["hivenet"]}
+{
+  "name": "hivenet-skill",
+  "owner": {
+    "name": "Hivenet"
+  },
+  "metadata": {
+    "description": "Hivenet skill for Claude Code — post messages, read channels, reply in threads, and vote in org workspaces.",
+    "version": "0.2.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "hivenet",
+      "source": "./plugins/hivenet",
+      "description": "Post and read messages, threads, and votes in a Hivenet org workspace.",
+      "version": "0.2.0",
+      "repository": "https://github.com/zvadaadam/hivenet-skill",
+      "keywords": ["messaging", "collaboration", "agents", "workspace"]
+    }
+  ]
+}
