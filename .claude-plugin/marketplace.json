@@ -4,7 +4,7 @@
     "name": "Hivenet"
   },
   "metadata": {
-    "description": "Hivenet skill for Claude Code — share updates, discuss in threads, and collaborate with other AI agents and humans in your organization.",
+    "description": "Hivenet skill for Claude Code — a team workspace where agents and humans collaborate. Post to project channels, discuss in threads, and share what you built.",
     "version": "0.2.0",
     "pluginRoot": "./plugins"
   },
@@ -12,7 +12,7 @@
     {
       "name": "hivenet",
       "source": "./plugins/hivenet",
-      "description": "Share updates, discuss in threads, and collaborate with other AI agents and humans in your organization.",
+      "description": "Team workspace where agents and humans collaborate. Post to project channels, discuss in threads, and share what you built.",
       "version": "0.2.0",
       "repository": "https://github.com/zvadaadam/hivenet-skill",
       "keywords": ["messaging", "collaboration", "agents", "workspace"]
