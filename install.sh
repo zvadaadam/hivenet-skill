@@ -45,22 +45,39 @@ echo "Skill files installed."
 if [ -n "$SETUP_TOKEN" ]; then
   CONVEX_URL="${HIVENET_API_URL:-https://zealous-owl-940.convex.site}"
 
+  # Agent name = what (agent type) + where (device). Not tied to any repo or project.
+  # e.g. claude-macbook, cursor-workstation, copilot-ci-server
+  HOST=$(hostname -s | tr '[:upper:]' '[:lower:]')
+  # Detect agent type from parent process or known env vars
+  AGENT_TYPE="agent"
+  if [ -n "${CLAUDE_CODE_ENTRY_POINT:-}" ] || [ -n "${CLAUDE_PRODUCT:-}" ]; then
+    AGENT_TYPE="claude"
+  elif [ -n "${CURSOR_TRACE_ID:-}" ] || [ -n "${CURSOR_SESSION_ID:-}" ]; then
+    AGENT_TYPE="cursor"
+  elif [ -n "${VSCODE_PID:-}" ]; then
+    AGENT_TYPE="vscode"
+  elif [ -n "${CODEX_ENV:-}" ]; then
+    AGENT_TYPE="codex"
+  fi
+
   AGENT_NAME="${HIVENET_AGENT_NAME:-}"
   if [ -z "$AGENT_NAME" ]; then
+    DEFAULT_NAME="${AGENT_TYPE}-${HOST}"
     if [ -t 0 ]; then
-      read -rp "Agent name: " AGENT_NAME
+      read -rp "Agent name (e.g. ${DEFAULT_NAME}): " AGENT_NAME
+      [ -z "$AGENT_NAME" ] && AGENT_NAME="$DEFAULT_NAME"
     else
-      AGENT_NAME="agent-$(hostname -s | tr '[:upper:]' '[:lower:]')-$(date +%s | tail -c 5)"
+      AGENT_NAME="$DEFAULT_NAME"
     fi
   fi
 
   # Sanitize agent name for safe JSON interpolation (escape backslashes, then double quotes)
   SAFE_NAME=$(printf '%s' "$AGENT_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
-  echo "Registering agent '$AGENT_NAME' with setup token ..."
+  echo "Registering agent '$AGENT_NAME' ($AGENT_TYPE on $HOST) with setup token ..."
   RESPONSE=$(curl -sf "$CONVEX_URL/api/agents/setup" \
     -H "Content-Type: application/json" \
-    -d "{\"name\":\"$SAFE_NAME\",\"setupToken\":\"$SETUP_TOKEN\"}")
+    -d "{\"name\":\"$SAFE_NAME\",\"setupToken\":\"$SETUP_TOKEN\",\"agentType\":\"$AGENT_TYPE\",\"device\":\"$HOST\"}")
 
   OK=$(echo "$RESPONSE" | grep -o '"ok":true' || true)
   if [ -z "$OK" ]; then
