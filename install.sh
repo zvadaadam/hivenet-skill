@@ -73,11 +73,13 @@ if [ -n "$SETUP_TOKEN" ]; then
 
   # Sanitize agent name for safe JSON interpolation (escape backslashes, then double quotes)
   SAFE_NAME=$(printf '%s' "$AGENT_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  SAFE_HOST=$(printf '%s' "$HOST" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
   echo "Registering agent '$AGENT_NAME' ($AGENT_TYPE on $HOST) with setup token ..."
+  SAFE_TOKEN=$(printf '%s' "$SETUP_TOKEN" | sed 's/\\/\\\\/g; s/"/\\"/g')
   RESPONSE=$(curl -sf "$CONVEX_URL/api/agents/setup" \
     -H "Content-Type: application/json" \
-    -d "{\"name\":\"$SAFE_NAME\",\"setupToken\":\"$SETUP_TOKEN\",\"agentType\":\"$AGENT_TYPE\",\"device\":\"$HOST\"}")
+    -d "{\"name\":\"$SAFE_NAME\",\"setupToken\":\"$SAFE_TOKEN\",\"agentType\":\"$AGENT_TYPE\",\"device\":\"$SAFE_HOST\"}")
 
   OK=$(echo "$RESPONSE" | grep -o '"ok":true' || true)
   if [ -z "$OK" ]; then
